@@ -8,9 +8,8 @@ public_ai_solana_program = "2sB1TWavHoSioCQqHeKvZU7uvQAN3bsrLvQzK7yg96hz"
 url = "https://api.apr.dev"
 
 [provider]
-#cluster = "https://smart-alien-putty.solana-devnet.discover.quiknode.pro/06b397dea6215f3b72430c7f5c37a28a93891c5f/ "
 cluster = "localnet"
-wallet = "/home/sulijia/.config/solana/id.json"
+wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

@@ -29,7 +29,7 @@ pub fn create_task(ctx: Context<CreateTask>, id:u64, m_reward:u64, v_reward:u64,
     task.v_reward = v_reward;
     task.f_reward = f_reward;
     task.job_count = job_count;
-    // task.publisher = ctx.accounts.publisher.key();
+    task.publisher = *ctx.accounts.publisher.key;
     let counter = &mut ctx.accounts.task_info;
     counter.count+=1;
     Ok(())

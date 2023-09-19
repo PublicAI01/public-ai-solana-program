@@ -37,6 +37,7 @@ describe("public-ai-solana-program", () => {
     assert((await program.account.task.fetch(taskPDA)).id.eq(
         new BN('1'))
     )
+      assert.ok(pg.wallet.publicKey.equals((await program.account.task.fetch(taskPDA)).publisher));
       assert((await program.account.taskInfo.fetch(taskInfoPDA)).count.eq(
           new BN('1'))
       )

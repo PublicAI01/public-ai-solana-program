@@ -18,7 +18,7 @@ pub struct Task {
     pub v_reward: u64,
     pub f_reward: u64,
     pub job_count: u64,
-    // pub publisher: Pubkey,  //address of task publisher
+    pub publisher: Pubkey,  //address of task publisher
     // pub status: TaskStatus,
 }
 
