@@ -24,14 +24,16 @@ pub struct Task {
 
 #[account]
 pub struct Job {
-    id: u64,
-    marker: Pubkey,
-    validator: Pubkey,
-    fisher: Pubkey,
-    status: JobStatus
+    pub id: u64,
+    pub marker: Pubkey,
+    pub validator: Pubkey,
+    pub fisher: Pubkey,
+    pub status: JobStatus
 }
 #[account]
 pub struct TaskInfo {
     pub count: u64,
+    pub fee_rate: u64,
+    pub reward_token: Pubkey,
     pub bump: u8,
 }
