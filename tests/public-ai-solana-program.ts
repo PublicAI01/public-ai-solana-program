@@ -34,9 +34,13 @@ describe("public-ai-solana-program", () => {
       const mint_keypair = Keypair.generate();
       const publisher_keypair = Keypair.generate();
       const marker_keypair = Keypair.generate();
+      const validator_keypair = Keypair.generate();
+      const fisher_keypair = Keypair.generate();
       await requestAirdrop(mint_keypair);
       await requestAirdrop(publisher_keypair);
       await requestAirdrop(marker_keypair);
+      await requestAirdrop(validator_keypair);
+      await requestAirdrop(fisher_keypair);
       expect(await pg.connection.getBalance(mint_keypair.publicKey)).to.eq(web3.LAMPORTS_PER_SOL);
       expect(await pg.connection.getBalance(publisher_keypair.publicKey)).to.eq(web3.LAMPORTS_PER_SOL);
       expect(await pg.connection.getBalance(marker_keypair.publicKey)).to.eq(web3.LAMPORTS_PER_SOL);
@@ -99,8 +103,46 @@ describe("public-ai-solana-program", () => {
         publisherAta: publisher_ata,
         escrowWallet: escrowWalletPDA,
     }).signers([publisher_keypair]).rpc();
-      const xxxx = await pg.connection.getTokenAccountBalance(escrowWalletPDA);
-      console.log(xxxx)
+      expect((await pg.connection.getTokenAccountBalance(publisher_ata)).value.uiAmount).to.eq(997);
+      expect((await pg.connection.getTokenAccountBalance(escrowWalletPDA)).value.uiAmount).to.eq(3);
+      const marker_ata = await createAssociatedTokenAccount(
+          pg.connection,
+          marker_keypair,
+          mint,
+          marker_keypair.publicKey
+      );
+      const validator_ata = await createAssociatedTokenAccount(
+          pg.connection,
+          validator_keypair,
+          mint,
+          validator_keypair.publicKey
+      );
+      const fisher_ata = await createAssociatedTokenAccount(
+          pg.connection,
+          fisher_keypair,
+          mint,
+          fisher_keypair.publicKey
+      );
+      const [jobPDA] = await PublicKey.findProgramAddress(
+          [
+              anchor.utils.bytes.utf8.encode('job-1'),
+          ],
+          program.programId
+      )
+      // console.log(await pg.connection.getAccountInfo(escrowWalletPDA));
+      await program.methods.acceptJob(new BN('0'),new BN('1')).accounts({
+          publisher: publisher_keypair.publicKey,
+          taskInfo:taskInfoPDA,
+          task:taskPDA,
+          job:jobPDA,
+          escrowWallet: escrowWalletPDA,
+          markerAta: marker_ata,
+          validatorAta:validator_ata,
+          fisherAta: fisher_ata
+      }).signers([publisher_keypair]).rpc();
+      expect((await pg.connection.getTokenAccountBalance(marker_ata)).value.uiAmount).to.eq(1);
+      expect((await pg.connection.getTokenAccountBalance(validator_ata)).value.uiAmount).to.eq(1);
+      expect((await pg.connection.getTokenAccountBalance(fisher_ata)).value.uiAmount).to.eq(1);
     // assert((await program.account.task.fetch(taskPDA)).id.eq(
     //     new BN('1'))
     // )
@@ -126,76 +168,4 @@ describe("public-ai-solana-program", () => {
     //       new BN('2'))
     //   )
   });
-
-    // it("transfer token", async () => {
-    //     // Generate keypairs for the new accounts
-    //     const fromKp = Keypair.generate();
-    //     const signature = await pg.connection.requestAirdrop(
-    //         fromKp.publicKey,
-    //         web3.LAMPORTS_PER_SOL
-    //     );
-    //     const { blockhash, lastValidBlockHeight } = await pg.connection.getLatestBlockhash();
-    //     await pg.connection.confirmTransaction({
-    //         blockhash,
-    //         lastValidBlockHeight,
-    //         signature
-    //     });
-    //     const toKp = Keypair.generate();
-    //
-    //     // Create a new mint and initialize it
-    //     const mintKp = Keypair.generate();
-    //     const mint = await createMint(
-    //         pg.connection,
-    //         fromKp,
-    //         fromKp.publicKey,
-    //         null,
-    //         0
-    //     );
-    //     console.log(`mint: ${mint.toBase58()}`);
-    //     let mintAccount = await getMint(pg.connection, mint);
-    //
-    //     console.log(mintAccount);
-    //     // Create associated token accounts for the new accounts
-    //     const fromAta = await createAssociatedTokenAccount(
-    //         pg.connection,
-    //         fromKp,
-    //         mint,
-    //         fromKp.publicKey
-    //     );
-    //     const toAta = await createAssociatedTokenAccount(
-    //         pg.connection,
-    //         fromKp,
-    //         mint,
-    //         toKp.publicKey
-    //     );
-    //     // Mint tokens to the 'from' associated token account
-    //     const mintAmount = 1000;
-    //     await mintTo(
-    //         pg.connection,
-    //         fromKp,
-    //         mint,
-    //         fromAta,
-    //         fromKp.publicKey,
-    //         mintAmount
-    //     );
-    //
-    //     // Send transaction
-    //     const transferAmount = new BN(500);
-    //     const txHash = await program.methods
-    //         .acceptJob(transferAmount)
-    //         .accounts({
-    //             from: fromKp.publicKey,
-    //             fromAta: fromAta,
-    //             toAta: toAta,
-    //             tokenProgram: TOKEN_PROGRAM_ID,
-    //         })
-    //         .signers([fromKp, fromKp])
-    //         .rpc();
-    //     const toTokenAccount = await pg.connection.getTokenAccountBalance(toAta);
-    //     assert.strictEqual(
-    //         toTokenAccount.value.uiAmount,
-    //         transferAmount.toNumber(),
-    //         "The 'to' token account should have the transferred tokens"
-    //     );
-    // });
 });

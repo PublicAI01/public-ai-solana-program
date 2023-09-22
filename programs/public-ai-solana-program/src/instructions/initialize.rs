@@ -22,7 +22,7 @@ pub struct Initialize<'info> {
     seeds = [b"escrow_wallet"],
     bump,
     token::mint = reward_token,
-    token::authority = creator,
+    token::authority = task_info,
     )]
     pub escrow_wallet: Account<'info, TokenAccount>,
     pub system_program: Program<'info, System>,

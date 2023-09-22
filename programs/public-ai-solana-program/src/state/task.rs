@@ -24,6 +24,7 @@ pub struct Task {
 
 #[account]
 pub struct Job {
+    pub task_id: u64,
     pub id: u64,
     pub marker: Pubkey,
     pub validator: Pubkey,
