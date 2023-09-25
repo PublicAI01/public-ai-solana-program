@@ -2,7 +2,7 @@ use crate::state::task::*;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{Mint, Token};
 use anchor_spl::token::TokenAccount;
-
+use crate::errors::TaskError;
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(mut)]
@@ -30,6 +30,7 @@ pub struct Initialize<'info> {
 }
 
 pub fn initialize(ctx: Context<Initialize>, fee_rate:u64) -> Result<()> {
+    require!(fee_rate < 100, TaskError::FeeRateError);
     let initia = &mut ctx.accounts.task_info;
     initia.fee_rate = fee_rate;
     initia.reward_token = ctx.accounts.reward_token.key();

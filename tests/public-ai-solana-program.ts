@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 import {Program, web3} from "@coral-xyz/anchor";
-import { PublicKey,Keypair } from '@solana/web3.js'
+import { PublicKey,Keypair, SystemProgram } from '@solana/web3.js'
 import { PublicAiSolanaProgram } from "../target/types/public_ai_solana_program";
 import { expect,assert } from 'chai'
 import { BN } from 'bn.js';
@@ -30,17 +30,39 @@ describe("public-ai-solana-program", () => {
           signature
       });
   }
-  it("Is initialized!", async () => {
+  const transferToAny = async (recipientPublicKey:anchor.web3.PublicKey) => {
+      const senderPublicKey = pg.wallet.publicKey;
+      const amount = web3.LAMPORTS_PER_SOL;
+
+      const transaction = new anchor.web3.Transaction().add(
+          SystemProgram.transfer({
+              fromPubkey: senderPublicKey,
+              toPubkey: recipientPublicKey,
+              lamports: amount,
+          })
+      );
+
+      const signature = await pg.sendAndConfirm(transaction);
+
+      console.log("Transfer successful, transaction signature:", signature);
+  }
+
+  it("All test", async () => {
       const mint_keypair = Keypair.generate();
       const publisher_keypair = Keypair.generate();
       const marker_keypair = Keypair.generate();
       const validator_keypair = Keypair.generate();
       const fisher_keypair = Keypair.generate();
-      await requestAirdrop(mint_keypair);
-      await requestAirdrop(publisher_keypair);
-      await requestAirdrop(marker_keypair);
-      await requestAirdrop(validator_keypair);
-      await requestAirdrop(fisher_keypair);
+      // await requestAirdrop(mint_keypair);
+      // await requestAirdrop(publisher_keypair);
+      // await requestAirdrop(marker_keypair);
+      // await requestAirdrop(validator_keypair);
+      // await requestAirdrop(fisher_keypair);
+      await transferToAny(mint_keypair.publicKey);
+      await transferToAny(publisher_keypair.publicKey);
+      await transferToAny(marker_keypair.publicKey);
+      await transferToAny(validator_keypair.publicKey);
+      await transferToAny(fisher_keypair.publicKey);
       expect(await pg.connection.getBalance(mint_keypair.publicKey)).to.eq(web3.LAMPORTS_PER_SOL);
       expect(await pg.connection.getBalance(publisher_keypair.publicKey)).to.eq(web3.LAMPORTS_PER_SOL);
       expect(await pg.connection.getBalance(marker_keypair.publicKey)).to.eq(web3.LAMPORTS_PER_SOL);
@@ -143,29 +165,5 @@ describe("public-ai-solana-program", () => {
       expect((await pg.connection.getTokenAccountBalance(marker_ata)).value.uiAmount).to.eq(1);
       expect((await pg.connection.getTokenAccountBalance(validator_ata)).value.uiAmount).to.eq(1);
       expect((await pg.connection.getTokenAccountBalance(fisher_ata)).value.uiAmount).to.eq(1);
-    // assert((await program.account.task.fetch(taskPDA)).id.eq(
-    //     new BN('1'))
-    // )
-    //   assert.ok(pg.wallet.publicKey.equals((await program.account.task.fetch(taskPDA)).publisher));
-    //   assert((await program.account.taskInfo.fetch(taskInfoPDA)).count.eq(
-    //       new BN('1'))
-    //   )
-    //   const    [taskPDA1] = await PublicKey.findProgramAddress(
-    //       [
-    //           anchor.utils.bytes.utf8.encode('task-1'),
-    //       ],
-    //       program.programId
-    //   )
-    //   await program.methods.createTask(new BN('2'),new BN('1'),new BN('1'),new BN('1'),new BN('1')).accounts({
-    //       publisher: pg.wallet.publicKey,
-    //       taskInfo:  taskInfoPDA,
-    //       task: taskPDA1,
-    //   }).rpc();
-    //   assert((await program.account.task.fetch(taskPDA1)).id.eq(
-    //       new BN('2'))
-    //   )
-    //   assert((await program.account.taskInfo.fetch(taskInfoPDA)).count.eq(
-    //       new BN('2'))
-    //   )
   });
 });
