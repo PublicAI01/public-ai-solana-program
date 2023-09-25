@@ -1,7 +1,7 @@
 [features]
 seeds = false
 skip-lint = false
-[programs.devnet]
+[programs.localnet]
 public_ai_solana_program = "2sB1TWavHoSioCQqHeKvZU7uvQAN3bsrLvQzK7yg96hz"
 
 [registry]
