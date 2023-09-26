@@ -1,4 +1,5 @@
 use crate::state::task::*;
+use crate::errors::TaskError;
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Token, TokenAccount, Transfer as SplTransfer};
 #[derive(Accounts)]
@@ -53,6 +54,8 @@ pub fn create_task(ctx: Context<CreateTask>, id:u64, m_reward:u64, v_reward:u64,
     let cpi_program = token_program.to_account_info();
     let mut amount = (m_reward + v_reward + f_reward)*job_count;
     amount = amount + amount*ctx.accounts.task_info.fee_rate/100;
+    let balance = token::accessor::amount(&source.to_account_info().clone())?;
+    require!(balance >= amount, TaskError::InsufficientFund);
     token::transfer(
         CpiContext::new(cpi_program, cpi_accounts),
         amount)?;

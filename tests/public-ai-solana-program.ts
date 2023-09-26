@@ -8,7 +8,8 @@ import {
     createMint,
     createAssociatedTokenAccount,
     mintTo,
-    TOKEN_PROGRAM_ID, getMint,
+    getAssociatedTokenAddress,
+    TOKEN_PROGRAM_ID, getMint
 } from "@solana/spl-token";
 import * as bs58 from "bs58";
 
@@ -79,6 +80,11 @@ describe("public-ai-solana-program", () => {
           mint,
           publisher_keypair.publicKey
       );
+      const cal_publisher_ata = await getAssociatedTokenAddress(
+          mint,
+          publisher_keypair.publicKey,
+      );
+      assert.ok(publisher_ata.equals(cal_publisher_ata));
       const mintAmount = 1000;
       await mintTo(
           pg.connection,
