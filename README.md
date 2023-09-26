@@ -1,5 +1,10 @@
 # public-ai-solana-program
-Installation
+The code contains the following:
+
+- Solana program code to initialize a task, accept job of one task,ant then distribute rewards.
+- Unit tests for complete scenarios
+
+### Installation
 
 ​    Rust
 
@@ -9,7 +14,7 @@ Installation
 
 ​    Anchor
 
-Test
+### Test
 
 ​    anchor test
 
